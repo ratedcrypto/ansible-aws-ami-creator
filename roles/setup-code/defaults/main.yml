@@ -1,4 +1,5 @@
 # Setup code
 repo_url: '<<repo_url>>'
+repo_name: '<<repo_name>>'
 branch: '<<branch>>'
-remote_dir: '/home/ubuntu/docker-ci_testrunner'
+remote_dir: '<<remote_dir>>'
