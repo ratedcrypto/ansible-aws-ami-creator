@@ -1,0 +1,10 @@
+---
+- name: Clone code
+  git:
+    repo: "{{ repo_url }}"
+    version: "{{ branch }}"
+    dest: "{{ remote_dir }}"
+    accept_hostkey: yes
+  become: no
+
+# And run setup specific commands...

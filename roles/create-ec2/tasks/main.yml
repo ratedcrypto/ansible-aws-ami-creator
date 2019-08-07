@@ -1,0 +1,47 @@
+---
+- name: create an aws instance
+  ec2:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    key_name: "{{ instance_key_name }}"
+    instance_type: "{{ instance_type }}"
+    image: "{{ image }}" 
+    wait: true
+    count: "{{ count }}"
+    instance_tags:
+      Name: "{{ instance_name }}"
+      Backup: "{{ backup }}"
+      Type: "{{ type }}"
+    monitoring: no
+    vpc_subnet_id: "{{ vpc_subnet_id }}"
+    group_id: "{{ security_group_id }}"
+    zone: "{{ zone }}" 
+    region: "{{ region }}"
+    assign_public_ip: yes
+  register: ec2
+
+- name: Add the newly created EC2 instance(s) to the local host group (located inside the directory)
+  local_action: lineinfile 
+    dest="./hosts" 
+    regexp={{ item.public_ip }} 
+    insertafter="[webserver]" line={{ item.public_ip }}
+  with_items: "{{ ec2.instances }}"
+
+- name: Wait for SSH to come up
+  wait_for:
+    host: "{{ item.public_ip }}"
+    port: 22 
+    state: started 
+  with_items: "{{ ec2.instances }}"
+
+- name: Gather EC2 facts
+  ec2_instance_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    instance_ids: "{{ ec2.instance_ids }}"
+  register: instance_facts
+    
+- name: degug
+  debug:
+    msg: "{{ instance_facts }}"

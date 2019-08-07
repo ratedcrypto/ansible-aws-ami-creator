@@ -1,0 +1,13 @@
+aws_access_key: '<<aws_access_key>>'
+aws_secret_key: '<<aws_secret_key>>'
+ansible_ssh_private_key_file: .pems/<<key>>.pem
+instance_name: '<<instance_name>>'
+instance_key_name: '<<instance_key_name>>'
+instance_type: '<<instance_type>>'
+image: '<<image>>'
+vpc_subnet_id: '<<vpc_subnet_id>>'
+security_group_id: '<<security_group_id>>'
+zone: '<<zone>'
+region: '<<region>>'
+count: '<<count>>
+ami_name: '<<ami_name>>'

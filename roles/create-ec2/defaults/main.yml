@@ -1,0 +1,3 @@
+# Ec2 instace's required tags
+backup: "Exempt"
+type: "Webserver"

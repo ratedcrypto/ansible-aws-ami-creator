@@ -1,0 +1,42 @@
+---
+- name: Create ec2 instance
+  hosts: local
+  connection: local
+  roles:
+    - create-ec2
+
+- name: Refresh inventory
+  hosts: local
+  connection: local
+  roles:
+    - refresh-inventory
+
+- name: Install dependencies
+  hosts: webserver
+  remote_user: ubuntu
+  become_user: root
+  become: yes
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+  roles: 
+   - install-packages
+
+- name: Setup code
+  hosts: webserver
+  remote_user: ubuntu
+  roles: 
+   - setup-code
+
+- name: Create AMI
+  hosts: local
+  connection: local
+  roles:
+    - create-ami
+
+- name: Terminate ec2
+  hosts: local
+  connection: local
+  roles:
+    - terminate-ec2
