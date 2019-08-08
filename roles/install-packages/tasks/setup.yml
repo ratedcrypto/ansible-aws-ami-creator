@@ -1,4 +1,14 @@
 ---
+- name: Define java_packages.
+  set_fact:
+    java_packages: "{{ __java_packages | list }}"
+  when: java_packages is not defined
+  
+- name: Ensure Java is installed.
+  apt:
+    name: "{{ java_packages }}"
+    state: present
+    
 - name: Ensure old versions of Docker are not installed.
   package:
     name:

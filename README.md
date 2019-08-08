@@ -1,7 +1,7 @@
 # ansible-aws-ami-creator
 
 ## Features:
-* Included ansible roles to create ec2 instance, refresh dynamic inventory, install-packages (docker and docker-compose in this case), create ami and termiante ec2 instance
+* Included ansible roles to create ec2 instance, refresh dynamic inventory, install-packages (java, docker and docker-compose in this case), create ami and termiante ec2 instance
 * Support for AWS environment variables in group_vars
 * Support for role specific varialbes in defaults/main.yml
 
