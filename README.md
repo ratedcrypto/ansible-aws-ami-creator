@@ -18,3 +18,7 @@ ssh_args=-o ForwardAgent=yes
 # Run the playbook
 ansible-playbook -i hosts site.yml
 ```
+
+## References
+* https://github.com/geerlingguy/ansible-role-docker
+* https://github.com/geerlingguy/ansible-role-java
