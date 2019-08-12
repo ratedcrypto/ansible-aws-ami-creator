@@ -2,13 +2,6 @@
 - include_tasks: setup-Debian.yml
   when: ansible_os_family == 'Debian'
 
-- name: Set JAVA_HOME if configured.
-  template:
-    src: java_home.sh.j2
-    dest: /etc/profile.d/java_home.sh
-    mode: 0644
-  when: java_home is defined and java_home
-
 - name: Install Docker.
   package:
     name: "{{ docker_package }}"
@@ -40,3 +33,74 @@
     groups: docker
     append: true
   with_items: "{{ docker_users }}"
+
+- name: Check if Composer is installed.
+  stat: "path={{ composer_path }}"
+  register: composer_bin
+
+- name: Get Composer installer signature.
+  uri:
+    url: https://composer.github.io/installer.sig
+    return_content: true
+  register: composer_installer_signature
+  when: not composer_bin.stat.exists
+
+- name: Download Composer installer.
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-installer.php
+    mode: 0755
+    checksum: "sha384:{{ composer_installer_signature.content }}"
+  when: not composer_bin.stat.exists
+
+- name: Run Composer installer.
+  command: >
+    {{ php_executable }} composer-installer.php {% if composer_version %} --version={{ composer_version }}{% endif %}
+    chdir=/tmp
+  when: not composer_bin.stat.exists
+
+- name: Move Composer into globally-accessible location.
+  command: >
+    mv /tmp/composer.phar {{ composer_path }}
+    creates={{ composer_path }}
+  when: not composer_bin.stat.exists
+
+- name: Update Composer to latest version (if configured).
+  command: >
+    {{ php_executable }} {{ composer_path }} self-update
+  register: composer_update
+  changed_when: "'Updating to version' in composer_update.stdout"
+  when: composer_keep_updated | bool
+
+- name: Ensure composer directory exists.
+  file:
+    path: "{{ composer_home_path }}"
+    owner: "{{ composer_home_owner }}"
+    group: "{{ composer_home_group }}"
+    state: directory
+
+# Install global required compsoer packages.
+- name: Install configured globally-required packages.
+  command: >
+    {{ composer_path }} global require {{ item.name }}:{{ item.release | default('@stable') }} --no-progress
+    creates={{ composer_home_path }}/vendor/{{ item.name }}
+  environment:
+    COMPOSER_HOME: "{{ composer_home_path }}"
+  become_user: "{{ composer_home_owner }}"
+  register: composer_global_require_result
+  with_items: "{{ composer_global_packages }}"
+
+- name: Add composer_home_path bin directory to global $PATH.
+  template:
+    src: composer.sh.j2
+    dest: /etc/profile.d/composer.sh
+    mode: 0644
+  when: composer_add_to_path | bool
+
+# Environment setup.
+- name: Set JAVA_HOME if configured.
+  template:
+    src: java_home.sh.j2
+    dest: /etc/profile.d/java_home.sh
+    mode: 0644
+  when: java_home is defined and java_home

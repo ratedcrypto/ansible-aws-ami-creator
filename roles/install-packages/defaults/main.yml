@@ -1,9 +1,34 @@
 ---
+# Add user and group.
+user: dev
+group: dev
+
 # Java options.
 java_packages:
   - openjdk-8-jdk
 
 java_home: "/usr/lib/jvm/java-8-openjdk-amd64"
+
+# PHP options.
+php_packages:
+  - php
+  - php-common
+  - php-cli
+  - php-curl
+  - php-zip
+  - php-simplexml
+
+# Composer options.
+composer_path: /usr/local/bin/composer
+composer_home_path: '~/.composer'
+composer_home_owner: root
+composer_home_group: root
+composer_version: ''
+composer_keep_updated: true
+
+# We will use local phing dependancy.
+composer_global_packages: []
+composer_add_to_path: true
 
 # Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
 docker_edition: 'ce'
@@ -27,4 +52,4 @@ docker_apt_repository: "deb [arch={{ docker_apt_arch }}] https://download.docker
 docker_apt_ignore_key_error: true
 
 # A list of users who will be added to the docker group.
-docker_users: [ubuntu]
+docker_users: ["{{ user }}"]

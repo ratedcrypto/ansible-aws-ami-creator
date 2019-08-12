@@ -5,6 +5,7 @@
     version: "{{ branch }}"
     dest: "{{ remote_dir }}"
     accept_hostkey: yes
-  become: no
+  become: yes
+  become_user: dev
 
 # And run setup specific commands...

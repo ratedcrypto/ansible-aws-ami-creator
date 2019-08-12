@@ -1,4 +1,49 @@
 ---
+- name: Ensure group {{ group }} exists
+  group:
+    name: "{{ group }}"
+    state: present
+
+- name: Add user {{ user }}
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    shell: /bin/bash  
+    state: present
+
+- name: Add user {{ user }} to sudo
+  lineinfile:
+    path: /etc/sudoers.d/{{ user }}
+    line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    mode: 0440
+    create: yes
+    validate: 'visudo -cf %s'
+
+- name: Create .ssh directory
+  file:
+    path: /home/{{ user }}/.ssh
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0700
+
+- name: Copy ssh secret key 
+  copy:
+    src: <<id_rsa>>
+    dest: /home/{{ user }}/.ssh/id_rsa
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0400
+
+- name: Copy ssh public key 
+  copy:
+    src: <<id_rsa.pub>>
+    dest: /home/{{ user }}/.ssh/id_rsa.pub
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0644
+    
 - name: Define java_packages.
   set_fact:
     java_packages: "{{ __java_packages | list }}"
@@ -7,6 +52,21 @@
 - name: Ensure Java is installed.
   apt:
     name: "{{ java_packages }}"
+    state: present
+
+- name: Set php_executable variable to a default if not defined.
+  set_fact:
+    php_executable: php
+  when: php_executable is not defined
+
+- name: Define php_packages.
+  set_fact:
+    php_packages: "{{ __php_packages | list }}"
+  when: php_packages is not defined
+
+- name: Ensure PHP is installed.
+  apt:
+    name: "{{ php_packages }}"
     state: present
     
 - name: Ensure old versions of Docker are not installed.

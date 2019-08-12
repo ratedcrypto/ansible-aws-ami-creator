@@ -26,6 +26,8 @@
 - name: Setup code
   hosts: webserver
   remote_user: ubuntu
+  become_user: dev
+  become: yes
   roles: 
    - setup-code
 
