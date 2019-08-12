@@ -79,6 +79,8 @@
 - name: Ensure dependencies are installed.
   apt:
     name:
+      - zip
+      - unzip
       - apt-transport-https
       - ca-certificates
     state: present
